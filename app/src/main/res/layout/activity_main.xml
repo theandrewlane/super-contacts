@@ -1,0 +1,36 @@
+<AbsoluteLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:id="@+id/MainLayout"
+    tools:context=".MainActivity"
+    android:gravity="right">
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/addNewContactButton"
+        android:layout_marginBottom="23dp"
+        android:layout_marginEnd="24dp"
+        android:onClick="onClick_newScan"
+        android:src="@android:drawable/ic_menu_camera"
+        android:layout_gravity="bottom|right"
+        android:layout_marginRight="23dp"
+        android:layout_height="56dp"
+        android:layout_width="58dp"
+        android:layout_x="214dp"
+        android:layout_y="447dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/addNewContactNoScanButton"
+        android:layout_width="58dp"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="23dp"
+        android:layout_marginEnd="24dp"
+        android:onClick="onClick_newContact"
+        android:src="@android:drawable/ic_input_add"
+        android:layout_x="284dp"
+        android:layout_y="447dp" />
+
+
+</AbsoluteLayout>

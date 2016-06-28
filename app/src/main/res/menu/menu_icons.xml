@@ -1,0 +1,27 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:app.android="http://schemas.android.com/tools">
+
+    <item
+        android:id="@+id/action_delete"
+        android:allowBackup="true"
+        android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
+        app:showAsAction="ifRoom"
+        android:icon="@android:drawable/ic_menu_delete" />
+
+    <item
+        android:id="@+id/action_save"
+        android:allowBackup="true"
+        android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
+        app:showAsAction="always"
+        android:icon="@android:drawable/ic_menu_save"/>
+
+    <item
+        android:id="@+id/action_importCourses"
+        android:allowBackup="true"
+        android:title="Import"
+        android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
+        app:showAsAction="always|withText"/>
+
+
+</menu>
