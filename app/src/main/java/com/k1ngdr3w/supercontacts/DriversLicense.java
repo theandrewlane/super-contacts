@@ -1,22 +1,42 @@
 package com.k1ngdr3w.supercontacts;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Map;
 
 public class DriversLicense {
 
     private String dataString;
+    Map<String, String> map = new HashMap<String, String>();
+
+
     private HashMap<String, String> dataHash;
     private Decoder decoder;
 
     public DriversLicense(String barCode) {
         dataString = barCode;
-        decoder = new Decoder(barCode);
-        dataHash = decoder.getSubFile();
+        try {
+            decoder = new Decoder(barCode);
+            dataHash = decoder.getSubFile();
+
+        } catch (RuntimeException e) {
+            Log.e("before", barCode);
+
+            String[] keyValuePairs = barCode.split(",");              //split the string to creat key-value pairs
+            for(String pair : keyValuePairs)                        //iterate over the pairs
+            {
+                String[] entry = pair.split("=");                   //split the pairs to get key and value
+                map.put(entry[0].trim(), entry[1].trim());          //add them to the hashmap and trim whitespaces
+            }
+            dataHash = (HashMap<String, String>) map;
+            Log.e("after", dataHash.toString());
+        }
     }
 
     public String dlFormat(String str) {
@@ -135,6 +155,56 @@ public class DriversLicense {
         }
         return dlFormat(address);
     }
+
+
+    /**
+     * Get extracted phone number
+     *
+     * @return Address
+     */
+    public String getPhoneNumber() {
+        String phone = dataHash.get("Phone");
+        if (phone != null && !phone.isEmpty()) {
+            phone = phone.trim();
+        } else {
+            phone = "";
+        }
+        return dlFormat(phone);
+    }
+
+    /**
+     * Get extracted geo Cords
+     *
+     * @return Address
+     */
+    public String getGeoCords() {
+        String geoCords = dataHash.get("GeoCords");
+        if (geoCords != null && !geoCords.isEmpty()) {
+            geoCords = geoCords.trim();
+        } else {
+            geoCords = "";
+        }
+        return dlFormat(geoCords);
+    }
+
+    /**
+     *
+     *
+     * TODO CATCH THE ERRRO YOU DUMMY STRINGINDEOX OUT OF BOUNDS
+     * Get extracted geo Cords
+     *
+     * @return Address
+     */
+    public String getCompleteAddress() {
+        String fullAddress = dataHash.get("FullAddress");
+        if (fullAddress != null && !fullAddress.isEmpty()) {
+            fullAddress = fullAddress.trim();
+        } else {
+            fullAddress = "";
+        }
+        return dlFormat(fullAddress);
+    }
+
 
     /**
      * Get extracted city

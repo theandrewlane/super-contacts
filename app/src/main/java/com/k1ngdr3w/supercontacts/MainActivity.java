@@ -2,17 +2,27 @@ package com.k1ngdr3w.supercontacts;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -67,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
         @Override
         public void gotLocation(Location location) {
             if (location != null) {
-                coords = String.valueOf("lat: " + location.getLatitude()) + "lon: " + String.valueOf(location.getLongitude());
+                coords = String.valueOf("lat: " + location.getLatitude()) + " lon: " + String.valueOf(location.getLongitude());
             }
         }
     };
@@ -93,14 +103,24 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
             } else {
                 license = new DriversLicense(result.getContents());
                 license.toJson();
-                String address = license.getAddress() + "\n" + license.getCity() + ", " + license.getState();
-                contactListFragment.addContactToDB(license.getLastName(), license.getFirstName(), address, license.getDOB(), null, coords);
+                 String address = license.getAddress() + "\n" + license.getCity() + ", " + license.getState();
+
+//                //IF this is an import, use imported data
+//                if(license.getGeoCords().trim().length() > 1){
+//                    coords = license.getGeoCords();
+//                }
+                if(license.getCompleteAddress().length() > 1  ){
+                    address = license.getCompleteAddress();
+                }
+
+                contactListFragment.addContactToDB(license.getLastName(), license.getFirstName(), address, license.getDOB(), license.getPhoneNumber(), coords);
             }
         } else {
             // This is important, otherwise the result will not be passed to the fragment
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
+
 
     @Override
     public void onAdd() {

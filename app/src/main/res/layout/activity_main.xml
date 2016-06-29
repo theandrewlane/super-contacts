@@ -32,5 +32,11 @@
         android:layout_x="284dp"
         android:layout_y="447dp" />
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/poop"/>
+
+
 
 </AbsoluteLayout>

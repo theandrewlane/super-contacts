@@ -36,6 +36,9 @@ public class Decoder {
         fields.put("DAQ", "DriverLicenseNumber");
         fields.put("DBD", "LicenseIssuedDate");
         fields.put("DBA", "LicenseExpirationDate");
+        fields.put("DGC", "GeoCords");
+        fields.put("DPN", "PhoneNumber");
+        fields.put("DBY", "Birthday");
     }
 
     protected HashMap headers;

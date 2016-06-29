@@ -7,6 +7,8 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,9 +18,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.zxing.WriterException;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 
 public class ContactEditViewFragment extends Fragment {
@@ -29,11 +39,12 @@ public class ContactEditViewFragment extends Fragment {
     public String state, firstName, lastName, tempName;
     private EditText address, birthday, phone, name;
     private TextView geoCords;
+    private boolean isSharable = false;
     Bundle arguments;
     private int i_address, i_bday, i_phone, i_firstName, i_lastName, i_geoLoc;
     Activity act;
 
-    MenuItem deleteMenuButton, exportMenuButton, saveMenuButton;
+    MenuItem deleteMenuButton, shareMenuButton, saveMenuButton;
 
 
     public ContactEditViewFragment() {
@@ -44,11 +55,11 @@ public class ContactEditViewFragment extends Fragment {
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         deleteMenuButton = menu.findItem(R.id.action_delete);
-        exportMenuButton = menu.findItem(R.id.action_importCourses);
+        shareMenuButton = menu.findItem(R.id.action_share);
         saveMenuButton = menu.findItem(R.id.action_save);
         deleteMenuButton.setVisible(true);
         saveMenuButton.setVisible(true);
-        exportMenuButton.setVisible(false);
+        shareMenuButton.setVisible(true);
     }
 
 
@@ -60,7 +71,8 @@ public class ContactEditViewFragment extends Fragment {
             case R.id.action_delete:
                 deleteContact(rowID);
                 return true;
-            case R.id.action_importCourses:
+            case R.id.action_share:
+                spawnShareDialog(generateBarcode(generateSharableString()));
                 return true;
             case R.id.action_save:
                 if (validateInput())
@@ -70,7 +82,6 @@ public class ContactEditViewFragment extends Fragment {
 
         return super.onOptionsItemSelected(item);
     }
-
 
     public interface ContactEditFragment_Listener {
         void onCompleteSave(long rowID);
@@ -103,7 +114,7 @@ public class ContactEditViewFragment extends Fragment {
         super.onDetach();
         contactEditFragment_listener = null;
         deleteMenuButton.setVisible(false);
-        exportMenuButton.setVisible(false);
+        shareMenuButton.setVisible(false);
         saveMenuButton.setVisible(false);
     }
 
@@ -134,21 +145,45 @@ public class ContactEditViewFragment extends Fragment {
             geoCords.setFocusable(true);
             rowID = savedData.getLong(DatabaseHelper.KEY_ROWID);
             new GetContactFromDB().execute(rowID);
-
         } else {
             state = "create";
             geoCords.setEnabled(false);
             geoCords.setClickable(false);
             geoCords.setFocusable(false);
         }
-        Log.e("CEVF ------", "the current state is " + state);
         return rv;
     }
 
+    private void spawnShareDialog(Bitmap bitmap) {
+        if (isSharable) {
+            Dialog builder = new Dialog(getActivity());
+            builder.setTitle("Scan this barcode to share contact!");
+            builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            builder.getWindow().setBackgroundDrawable(
+                    new ColorDrawable(android.graphics.Color.TRANSPARENT));
+            builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface) {
+                    //nada de particular senior!;
+                }
+            });
+
+            ImageView imageView = new ImageView(getActivity());
+            imageView.setImageBitmap(bitmap);
+            builder.addContentView(imageView, new RelativeLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+            builder.show();
+        }
+    }
+
+
     public boolean validateInput() {
+        isSharable = false;
         if (name.getText().toString().length() < 1) {
             Toast.makeText(act, "You must enter a contact name.",
                     Toast.LENGTH_LONG).show();
+
             return false;
         }
 
@@ -157,6 +192,7 @@ public class ContactEditViewFragment extends Fragment {
                     Toast.LENGTH_LONG).show();
             return false;
         }
+        isSharable = true;
         return true;
     }
 
@@ -219,6 +255,59 @@ public class ContactEditViewFragment extends Fragment {
             }
         }
     }
+
+    //Generate A Shareable String
+    public String generateSharableString() {
+        JSONObject item = new JSONObject();
+        JSONObject json = new JSONObject();
+        JSONArray array = new JSONArray();
+
+        if (validateInput()) {
+            updateAddContact();
+            new GetContactFromDB().execute(rowID);
+            String dataString = "LastName = " + lastName + ", FirstName = " + firstName + ", FullAddress = " + address.getText().toString() + ", DOB = " + birthday.getText().toString() + ", Phone = " + phone.getText().toString() + ", GeoCords = " + geoCords.getText().toString().trim();
+            return dataString;
+           /* updateAddContact();
+            new GetContactFromDB().execute(rowID);
+            parseName(name.getText().toString());
+            try {
+                item.put("first_name", firstName);
+                item.put("last_name", lastName);
+                item.put("address", address.getText().toString());
+                item.put("dob", birthday.getText().toString());
+                item.put("phone", phone.getText().toString());
+                item.put("geoCords", geoCords.getText().toString());
+                array.put(item);
+                json.put("contact", array);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return json;*/
+        }
+        return null;
+    }
+
+    public Bitmap generateBarcode(String contents) {
+
+
+//            String s = contents.getString("contact");
+//
+//            int indexOfOpenBracket = s.indexOf("[");
+//            int indexOfLastBracket = s.lastIndexOf("]");
+//            s = s.substring(indexOfOpenBracket+1, indexOfLastBracket);
+
+        Log.e("here w.json", contents);
+
+
+        try {
+            return BarcodeWriter.encodeStringToBitmap(contents);
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
 
     public boolean updateAddContact() {
         AsyncTask<Object, Object, Object> addContactToDBTask =
