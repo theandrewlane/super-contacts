@@ -29,7 +29,7 @@ public class DriversLicense {
             Log.e("before", barCode);
 
             String[] keyValuePairs = barCode.split(",");              //split the string to creat key-value pairs
-            for(String pair : keyValuePairs)                        //iterate over the pairs
+            for (String pair : keyValuePairs)                        //iterate over the pairs
             {
                 String[] entry = pair.split("=");                   //split the pairs to get key and value
                 map.put(entry[0].trim(), entry[1].trim());          //add them to the hashmap and trim whitespaces
@@ -70,29 +70,33 @@ public class DriversLicense {
      * Name: "Tian Yu Z Huang", firstName: "Tian Yu Z";
      */
     public String getFirstName() {
-        String firstName = dataHash.get("FirstName");
-        if (firstName != null && !firstName.isEmpty()) {
-            firstName = firstName.trim();
+        if (dataHash.toString().contains("FirstName")) {
 
-        } else {
-            String name = dataHash.get("Name");
-            if (name != null && !name.isEmpty()) {
-                String[] nameTokens = name.split(" ");
-                if (nameTokens.length <= 3) {
-                    firstName = nameTokens[0].trim();
-                } else {
-                    for (int i = 1; i < nameTokens.length; i++) {
-                        firstName += nameTokens[i].trim();
-                        if (i < nameTokens.length - 1) {
-                            firstName += " ";
+            String firstName = dataHash.get("FirstName");
+            if (firstName != null && !firstName.isEmpty()) {
+                firstName = firstName.trim();
+
+            } else {
+                String name = dataHash.get("Name");
+                if (name != null && !name.isEmpty()) {
+                    String[] nameTokens = name.split(" ");
+                    if (nameTokens.length <= 3) {
+                        firstName = nameTokens[0].trim();
+                    } else {
+                        for (int i = 1; i < nameTokens.length; i++) {
+                            firstName += nameTokens[i].trim();
+                            if (i < nameTokens.length - 1) {
+                                firstName += " ";
+                            }
                         }
                     }
+                } else {
+                    firstName = "";
                 }
-            } else {
-                firstName = "";
             }
+            return dlFormat(firstName);
         }
-        return dlFormat(firstName);
+        return null;
     }
 
     /**
@@ -107,6 +111,7 @@ public class DriversLicense {
      * Name: "Tian Yu Z Huang", lastName: "Huang";
      */
     public String getLastName() {
+
         String lastName = dataHash.get("LastName");
         if (lastName != null && !lastName.isEmpty()) {
             lastName = lastName.trim();
@@ -132,13 +137,17 @@ public class DriversLicense {
      * @return 2-Letter state abbreviations
      */
     public String getState() {
-        String state = dataHash.get("State");
-        if (state != null && !state.isEmpty()) {
-            state = state.trim().toUpperCase();
-        } else {
-            state = "";
+        if (dataHash.toString().contains("State")) {
+
+            String state = dataHash.get("State");
+            if (state != null && !state.isEmpty()) {
+                state = state.trim().toUpperCase();
+            } else {
+                state = "";
+            }
+            return state;
         }
-        return state;
+        return null;
     }
 
     /**
@@ -147,13 +156,16 @@ public class DriversLicense {
      * @return Address
      */
     public String getAddress() {
-        String address = dataHash.get("Address");
-        if (address != null && !address.isEmpty()) {
-            address = address.trim();
-        } else {
-            address = "";
+        if (dataHash.toString().contains("Address")) {
+            String address = dataHash.get("Address");
+            if (address != null && !address.isEmpty()) {
+                address = address.trim();
+            } else {
+                address = "";
+            }
+            return dlFormat(address);
         }
-        return dlFormat(address);
+        return null;
     }
 
 
@@ -163,13 +175,17 @@ public class DriversLicense {
      * @return Address
      */
     public String getPhoneNumber() {
-        String phone = dataHash.get("Phone");
-        if (phone != null && !phone.isEmpty()) {
-            phone = phone.trim();
-        } else {
-            phone = "";
+        if (dataHash.toString().contains("Phone")) {
+
+            String phone = dataHash.get("Phone");
+            if (phone != null && !phone.isEmpty()) {
+                phone = phone.trim();
+            } else {
+                phone = "";
+            }
+            return dlFormat(phone);
         }
-        return dlFormat(phone);
+        return null;
     }
 
     /**
@@ -178,31 +194,38 @@ public class DriversLicense {
      * @return Address
      */
     public String getGeoCords() {
-        String geoCords = dataHash.get("GeoCords");
-        if (geoCords != null && !geoCords.isEmpty()) {
-            geoCords = geoCords.trim();
-        } else {
-            geoCords = "";
+        if (dataHash.toString().contains("GeoCords")) {
+
+            String geoCords = dataHash.get("GeoCords");
+            if (geoCords != null && !geoCords.isEmpty()) {
+                geoCords = geoCords.trim();
+            } else {
+                geoCords = "";
+            }
+            return dlFormat(geoCords);
         }
-        return dlFormat(geoCords);
+        return null;
     }
 
     /**
-     *
-     *
      * TODO CATCH THE ERRRO YOU DUMMY STRINGINDEOX OUT OF BOUNDS
      * Get extracted geo Cords
      *
      * @return Address
      */
     public String getCompleteAddress() {
-        String fullAddress = dataHash.get("FullAddress");
-        if (fullAddress != null && !fullAddress.isEmpty()) {
-            fullAddress = fullAddress.trim();
-        } else {
-            fullAddress = "";
+        Log.e("getAadde", dataHash.toString());
+        if (dataHash.toString().contains("FullAddress")) {
+            String fullAddress = dataHash.get("FullAddress");
+            if (fullAddress != null && !fullAddress.isEmpty()) {
+                fullAddress = fullAddress.trim();
+            } else {
+                fullAddress = "";
+            }
+            return dlFormat(fullAddress);
+
         }
-        return dlFormat(fullAddress);
+        return null;
     }
 
 
@@ -212,13 +235,16 @@ public class DriversLicense {
      * @return City
      */
     public String getCity() {
-        String city = dataHash.get("City");
-        if (city != null && !city.isEmpty()) {
-            city = city.trim();
-        } else {
-            city = "";
+        if (dataHash.toString().contains("City")) {
+            String city = dataHash.get("City");
+            if (city != null && !city.isEmpty()) {
+                city = city.trim();
+            } else {
+                city = "";
+            }
+            return dlFormat(city);
         }
-        return dlFormat(city);
+        return null;
     }
 
     /**
@@ -227,28 +253,16 @@ public class DriversLicense {
      * @return ZIP code
      */
     public String getZipCode() {
-        String zipCode = dataHash.get("ZipCode");
-        if (zipCode != null && !zipCode.isEmpty()) {
-            zipCode = zipCode.trim();
-        } else {
-            zipCode = "";
+        if (dataHash.toString().contains("City")) {
+            String zipCode = dataHash.get("ZipCode");
+            if (zipCode != null && !zipCode.isEmpty()) {
+                zipCode = zipCode.trim();
+            } else {
+                zipCode = "";
+            }
+            return zipCode;
         }
-        return zipCode;
-    }
-
-    /**
-     * Get extracted country
-     *
-     * @return Country
-     */
-    public String getCountry() {
-        String country = dataHash.get("Country");
-        if (country != null && !country.isEmpty()) {
-            country = country.trim().toUpperCase();
-        } else {
-            country = "";
-        }
-        return country;
+        return null;
     }
 
 
@@ -258,16 +272,20 @@ public class DriversLicense {
      * @return DOB
      */
     public Calendar getDOBCal() {
-        Calendar calendar = null;
+        if (dataHash.toString().contains("DOB")) {
 
-        String dob = dataHash.get("DOB");
-        if (dob != null && !dob.isEmpty()) {
-            calendar = parseDate(dob);
+            Calendar calendar = null;
 
-        } else {
-            // Not found
+            String dob = dataHash.get("DOB");
+            if (dob != null && !dob.isEmpty()) {
+                calendar = parseDate(dob.replaceAll("[^\\d.]", ""));
+
+            } else {
+                // Not found
+            }
+            return calendar;
         }
-        return calendar;
+        return null;
     }
 
     /**
@@ -276,25 +294,9 @@ public class DriversLicense {
      * @return DOB
      */
     public String getDOB() {
-
         return formatDate(getDOBCal());
     }
 
-
-    /**
-     * Get parsed Height
-     *
-     * @return Height
-     */
-    public float getHeight() {
-        String height = dataHash.get("Height");
-        if (height != null && !height.isEmpty()) {
-            height = height.trim().replaceAll("[\\D]", "");
-        } else {
-            height = "";
-        }
-        return Float.parseFloat(height);
-    }
 
     /**
      * Get current object representation in JSON string
@@ -313,8 +315,11 @@ public class DriversLicense {
         jsonHash.put("city", getCity());
         jsonHash.put("state", getState());
         jsonHash.put("zipcode", getZipCode());
-        jsonHash.put("height", getHeight());
         jsonHash.put("dob", formatDate(getDOBCal()));
+        jsonHash.put("phone", getPhoneNumber());
+        jsonHash.put("geo_coords", getGeoCords());
+        jsonHash.put("full_address", getCompleteAddress());
+
         json = gson.toJson(jsonHash);
         return json;
     }

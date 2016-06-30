@@ -1,28 +1,16 @@
 package com.k1ngdr3w.supercontacts;
 
-import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -33,7 +21,9 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
     ContactEditViewFragment contactEditFragment;
     MyLocation myLocation = new MyLocation();
 
-    boolean gps_enabled = false;
+    boolean cameraPermissionAccepted = false;
+
+    boolean locationPermissionAccepted = false;
     View newContactFromScanButton, newContactButton;
 
     static DriversLicense license = null;
@@ -45,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestPermissions();
         setContentView(R.layout.activity_main);
         newContactFromScanButton = findViewById(R.id.addNewContactButton);
         newContactButton = findViewById(R.id.addNewContactNoScanButton);
@@ -65,19 +56,17 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
     }
 
 
-    private void findCurrentLocation() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-        if (checkLocationPermission())
+    public void findCurrentLocation() {
+        if (hasPermission("android.permission.ACCESS_FINE_LOCATION"))
             myLocation.getLocation(this, locationResult);
+
     }
 
-    //TODO put a toast here for loc fail
     public MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
-
         @Override
         public void gotLocation(Location location) {
             if (location != null) {
-                coords = String.valueOf("lat: " + location.getLatitude()) + " lon: " + String.valueOf(location.getLongitude());
+                coords = location.getLatitude() + ", " + location.getLongitude();
             }
         }
     };
@@ -95,50 +84,61 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null) {
-            if (result.getContents() == null) {
-                Log.d("MainActivity", "Cancelled scan");
-                Toast.makeText(this, "Cancelled ID scan!", Toast.LENGTH_LONG).show();
-            } else {
-                license = new DriversLicense(result.getContents());
-                license.toJson();
-                 String address = license.getAddress() + "\n" + license.getCity() + ", " + license.getState();
+        if (hasPermission("android.permission.CAMERA")) {
 
-//                //IF this is an import, use imported data
-//                if(license.getGeoCords().trim().length() > 1){
-//                    coords = license.getGeoCords();
-//                }
-                if(license.getCompleteAddress().length() > 1  ){
-                    address = license.getCompleteAddress();
+            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            if (result != null) {
+                if (result.getContents() == null) {
+                    Log.d("MainActivity", "Cancelled scan");
+                    Toast.makeText(this, "Cancelled ID scan!", Toast.LENGTH_LONG).show();
+                } else {
+                    license = new DriversLicense(result.getContents());
+                    String address = null;
+                    //IF this is an import, use imported data
+                    if (license.getGeoCords() != null) {
+                        coords = license.getGeoCords();
+                    }
+                    if (license.getCompleteAddress() != null) {
+                        address = license.getCompleteAddress();
+                    }
+                    if (license.getCompleteAddress() == null) {
+                        address = license.getAddress() + "\n" + license.getCity() + ", " + license.getState();
+
+                    }
+
+                    contactListFragment.addContactToDB(license.getLastName(), license.getFirstName(), address, license.getDOB(), license.getPhoneNumber(), coords);
                 }
-
-                contactListFragment.addContactToDB(license.getLastName(), license.getFirstName(), address, license.getDOB(), license.getPhoneNumber(), coords);
+            } else {
+                // This is important, otherwise the result will not be passed to the fragment
+                super.onActivityResult(requestCode, resultCode, data);
             }
-        } else {
-            // This is important, otherwise the result will not be passed to the fragment
-            super.onActivityResult(requestCode, resultCode, data);
         }
+        requestPermissions();
+        super.onActivityResult(0, 0, null);
     }
 
 
     @Override
     public void onAdd() {
-        new IntentIntegrator(activity).setOrientationLocked(false).setCaptureActivity(CustomScannerActivity.class).initiateScan();
-        contactListFragment = new ContactListFragment();
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.MainLayout, contactListFragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+        if (hasPermission("android.permission.CAMERA") && hasPermission("android.permission.CAMERA")) {
+
+            new IntentIntegrator(activity).setOrientationLocked(false).setCaptureActivity(CustomScannerActivity.class).initiateScan();
+            contactListFragment = new ContactListFragment();
+            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.MainLayout, contactListFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        } else {
+            requestPermissions();
+        }
     }
 
     //Hide The Activity Button
-    public void hideMainActivityButtons(boolean doHide){
+    public void hideMainActivityButtons(boolean doHide) {
         if (doHide) {
             newContactButton.setVisibility(View.INVISIBLE);
             newContactFromScanButton.setVisibility(View.INVISIBLE);
-        }
-        else {
+        } else {
             newContactFromScanButton.setVisibility(View.VISIBLE);
             newContactButton.setVisibility(View.VISIBLE);
         }
@@ -169,6 +169,10 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
 
     public void onClick_newContact(View view) {
         contactEditFragment = new ContactEditViewFragment();
+        Bundle arguments = new Bundle();
+        arguments.putLong(DatabaseHelper.KEY_ROWID, rowID);
+        arguments.putString(DatabaseHelper.KEY_GEOLOCATION, coords);
+        contactEditFragment.setArguments(arguments);
         hideMainActivityButtons(true);
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.MainLayout, contactEditFragment);
@@ -195,25 +199,28 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
 
 
     // ******* Location Permissions ******* \\
+
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case 1: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    gps_enabled = true;
-                else
-                    gps_enabled = false;
+            case 200: {
+                boolean locationPermissionAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                boolean cameraPermissionAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+
                 return;
             }
         }
     }
 
-    public boolean checkLocationPermission() {
-        String permission = "android.permission.ACCESS_FINE_LOCATION";
-        int res = this.checkCallingOrSelfPermission(permission);
-        return (res == PackageManager.PERMISSION_GRANTED);
+    private boolean hasPermission(String permission) {
+        return (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED);
     }
 
+    public boolean requestPermissions() {
+        String[] perms = {"android.permission.ACCESS_FINE_LOCATION", "android.permission.CAMERA"};
+        int permsRequestCode = 200;
+        requestPermissions(perms, permsRequestCode);
+        return true;
+    }
 
     // ******* Location Permissions ******* \\
 

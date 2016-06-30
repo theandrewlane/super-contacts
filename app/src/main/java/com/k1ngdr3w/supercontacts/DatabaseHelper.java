@@ -126,7 +126,7 @@ class DatabaseHelper {
 
     public Cursor getAllContacts() {
         String where = null;
-        Cursor c = sqlDb.query(true, DATABASE_TABLE, ALL_KEYS, where, null, null, null, null, null, null);
+        Cursor c = sqlDb.query(true, DATABASE_TABLE, ALL_KEYS, where, null, null, null, KEY_FIRSTNAME+" DESC", null);
         if (c != null) {
             c.moveToFirst();
         }

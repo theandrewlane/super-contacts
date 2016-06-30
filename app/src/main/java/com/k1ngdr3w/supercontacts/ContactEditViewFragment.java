@@ -6,11 +6,14 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,12 +22,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.zxing.WriterException;
 
 import org.json.JSONArray;
@@ -38,11 +48,14 @@ public class ContactEditViewFragment extends Fragment {
     private MainActivity ma;
     public String state, firstName, lastName, tempName;
     private EditText address, birthday, phone, name;
-    private TextView geoCords;
     private boolean isSharable = false;
-    Bundle arguments;
+    double lat, lon;
     private int i_address, i_bday, i_phone, i_firstName, i_lastName, i_geoLoc;
     Activity act;
+    Button geoCords;
+
+    String locationCoords;
+    GoogleMap map;
 
     MenuItem deleteMenuButton, shareMenuButton, saveMenuButton;
 
@@ -81,6 +94,42 @@ public class ContactEditViewFragment extends Fragment {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onClick_showMap() {
+
+
+        Dialog dialog = new Dialog(act);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_map);
+        dialog.show();
+        MapView mMapView = (MapView) dialog.findViewById(R.id.mapView);
+        MapsInitializer.initialize(act);
+
+        mMapView = (MapView) dialog.findViewById(R.id.mapView);
+        mMapView.onCreate(dialog.onSaveInstanceState());
+        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(lat,
+                lon));
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
+        map = mMapView.getMap();
+        map.moveCamera(center);
+        map.addCircle(new CircleOptions()
+                .center(new LatLng(lat, lon))
+                .radius(100)
+                .strokeColor(Color.BLACK)
+                .fillColor(0x5500ff00)
+                .strokeWidth(2));
+        map.animateCamera(zoom);
+        map.setBuildingsEnabled(true);
+        if (ActivityCompat.checkSelfPermission(act, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            //The user will have permission at this point anyway... Stupid android
+            return;
+        }
+        map.setMyLocationEnabled(true);
+        mMapView.onResume();// needed to get the map to display immediately
+
+
     }
 
     public interface ContactEditFragment_Listener {
@@ -136,21 +185,33 @@ public class ContactEditViewFragment extends Fragment {
         address = (EditText) rv.findViewById(R.id.addressField);
         birthday = (EditText) rv.findViewById(R.id.birthdayField);
         phone = (EditText) rv.findViewById(R.id.phoneField);
-        geoCords = (TextView) rv.findViewById(R.id.geoCordsField);
+        geoCords = (Button) rv.findViewById(R.id.geoCords);
 
-        if (savedData != null) {
+        geoCords.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                onClick_showMap();
+            }
+        });
+
+        if (savedData.toString().contains(DatabaseHelper.KEY_ROWID))
+
+        {
             state = "edit";
             geoCords.setEnabled(true);
             geoCords.setClickable(true);
             geoCords.setFocusable(true);
             rowID = savedData.getLong(DatabaseHelper.KEY_ROWID);
             new GetContactFromDB().execute(rowID);
-        } else {
+        }
+        if (savedData.toString().contains(DatabaseHelper.KEY_GEOLOCATION))
+        {
             state = "create";
+            locationCoords = savedData.getString(DatabaseHelper.KEY_GEOLOCATION);
             geoCords.setEnabled(false);
             geoCords.setClickable(false);
             geoCords.setFocusable(false);
         }
+
         return rv;
     }
 
@@ -200,7 +261,8 @@ public class ContactEditViewFragment extends Fragment {
         DatabaseHelper dbHelper = new DatabaseHelper(act);
         if (state == "create") {
             parseName(name.getText().toString());
-            rowID = dbHelper.insertContact(lastName, firstName, address.getText().toString(), birthday.getText().toString(), phone.getText().toString(), geoCords.getText().toString());
+
+            rowID = dbHelper.insertContact(lastName, firstName, address.getText().toString(), birthday.getText().toString(), phone.getText().toString(), locationCoords);
         }
 
         if (state == "edit") {
@@ -248,10 +310,13 @@ public class ContactEditViewFragment extends Fragment {
                 address.setText(cursor.getString(i_address));
                 birthday.setText(cursor.getString(i_bday));
                 phone.setText(cursor.getString(i_phone));
-                geoCords.setText(cursor.getString(i_geoLoc));
-
+                locationCoords = cursor.getString(i_geoLoc);
+                geoCords.setText(locationCoords);
                 cursor.close();
                 dbHelper.close();
+                String[] locationArray = locationCoords.split(",");
+                lat = Double.parseDouble(locationArray[0]);
+                lon = Double.parseDouble(locationArray[1]);
             }
         }
     }
@@ -267,38 +332,11 @@ public class ContactEditViewFragment extends Fragment {
             new GetContactFromDB().execute(rowID);
             String dataString = "LastName = " + lastName + ", FirstName = " + firstName + ", FullAddress = " + address.getText().toString() + ", DOB = " + birthday.getText().toString() + ", Phone = " + phone.getText().toString() + ", GeoCords = " + geoCords.getText().toString().trim();
             return dataString;
-           /* updateAddContact();
-            new GetContactFromDB().execute(rowID);
-            parseName(name.getText().toString());
-            try {
-                item.put("first_name", firstName);
-                item.put("last_name", lastName);
-                item.put("address", address.getText().toString());
-                item.put("dob", birthday.getText().toString());
-                item.put("phone", phone.getText().toString());
-                item.put("geoCords", geoCords.getText().toString());
-                array.put(item);
-                json.put("contact", array);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return json;*/
         }
         return null;
     }
 
     public Bitmap generateBarcode(String contents) {
-
-
-//            String s = contents.getString("contact");
-//
-//            int indexOfOpenBracket = s.indexOf("[");
-//            int indexOfLastBracket = s.lastIndexOf("]");
-//            s = s.substring(indexOfOpenBracket+1, indexOfLastBracket);
-
-        Log.e("here w.json", contents);
-
-
         try {
             return BarcodeWriter.encodeStringToBitmap(contents);
         } catch (WriterException e) {
@@ -307,7 +345,6 @@ public class ContactEditViewFragment extends Fragment {
 
         return null;
     }
-
 
     public boolean updateAddContact() {
         AsyncTask<Object, Object, Object> addContactToDBTask =

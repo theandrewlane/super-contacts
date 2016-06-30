@@ -63,38 +63,19 @@ public class ContactListFragment extends ListFragment {
         contactList_listener = null;
     }
 
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        super.onCreateOptionsMenu(menu, inflater);
-//        menu.clear();
-//        inflater.inflate(R.menu.menu_icons, menu);
-//    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         rv = inflater.inflate(R.layout.fragment_contact_list, container, false);
-
         return super.onCreateView(inflater, container, savedInstanceState);
     }
-
-//
-//    public void deleteAll() {
-//        DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
-//        dbHelper.open();
-//        dbHelper.deleteAll();
-//        dbHelper.close();
-//        reloadContacts();
-//    }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setRetainInstance(true); // save fragment across config changes
         ma = (MainActivity) getActivity();
-//        ma.hideAddButton(false);
-//        ma.hideSaveButton(true);
 
         setEmptyText("Click the add button to insert a course!");
         contactListView = getListView();
@@ -169,16 +150,6 @@ public class ContactListFragment extends ListFragment {
         }
     }
 
-//    public void getCourses() {
-//        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-//
-//            getFragmentManager().popBackStack();
-//        }
-//        getFragmentManager().popBackStack();
-//
-//        new getCanvasCourses().execute("");
-//    }
-
     //Kill the cursor
     public void onStop() {
         Cursor cursor = cursorAdapter.getCursor();
@@ -188,75 +159,6 @@ public class ContactListFragment extends ListFragment {
         }
         super.onStop();
     }
-
-
-//    public class getCanvasCourses extends AsyncTask<String, Integer, String> {
-//        final DatabaseHelper dbHelper = new DatabaseHelper(getActivity());
-//        String rawJSON = "";
-//        int stat;
-//
-//        //Send result to onPost execute
-//        @Override
-//        protected String doInBackground(String... params) {
-//            try {
-//                URL url = new URL("https://weber.instructure.com/api/v1/courses");
-//                HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-//                conn.setRequestMethod("GET");
-//                conn.setRequestProperty("Authorization", "Bearer " + MainActivity.AUTH_TOKEN);
-//                conn.connect();
-//                Log.w("CLF - ", url.toString());
-//                int status = conn.getResponseCode();
-//                if (status < 199 || status > 202) {
-//                    stat = status;
-//                }
-//                switch (status) {
-//                    case 200:
-//                    case 201:
-//                        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-//                        rawJSON = br.readLine();
-//                        Log.w("RAQ _--------------", rawJSON);
-//                }
-//            } catch (MalformedURLException e) {
-//                Log.w("MUE _--------------", e.getMessage());
-//            } catch (IOException e) {
-//                Log.w("IOE _--------------", e.getMessage());
-//            }
-//
-//            return rawJSON;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(String result) {
-//            super.onPostExecute(result);
-//            dbHelper.open();
-//            try {
-//                CanvasObjects.Course[] courses = jsonParse(result);
-//                for (CanvasObjects.Course course : courses) {
-//                    dbHelper.insertCourse(course.id, course.name, course.course_code, course.start_at, course.end_at);
-//                }
-//            } catch (Exception e) {
-//
-//            }
-//            reloadContacts();
-//            ma.toastGTFO(stat, 1);
-//            dbHelper.close();
-//        }
-//    }
-//
-//
-//    private CanvasObjects.Course[] jsonParse(String rawJson) {
-//        GsonBuilder gsonb = new GsonBuilder();
-//        Gson gson = gsonb.create();
-//
-//        CanvasObjects.Course[] courses = null;
-//
-//        try {
-//            courses = gson.fromJson(rawJson, CanvasObjects.Course[].class);
-//        } catch (Exception e) {
-//
-//        }
-//        return courses;
-//    }
 
 
     public void reloadContacts() {

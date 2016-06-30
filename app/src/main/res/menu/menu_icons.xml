@@ -20,7 +20,7 @@
     <item
         android:id="@+id/action_share"
         android:allowBackup="true"
-        android:title="Share Barcode"
+        android:title="Share"
         android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
         app:showAsAction="always|withText"/>
 

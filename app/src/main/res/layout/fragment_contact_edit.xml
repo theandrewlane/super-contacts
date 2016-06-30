@@ -18,7 +18,13 @@
             android:textColor="#FFFFFF"
             android:inputType="textCapWords"
             android:hint="Enter Contact Name"
-            android:textSize="30dp" />
+            android:textSize="30dp"
+            android:allowUndo="true"
+            android:contextClickable="false"
+            android:clickable="true"
+            android:editable="true"
+            android:focusable="true"
+            android:enabled="true" />
 
     </LinearLayout>
 
@@ -89,11 +95,22 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="5dp"
-                                android:hint="Enter Phone number"
+                                android:hint="@string/enter_phone_number"
                                 android:inputType="phone"
                                 android:digits="0123456789+"
                                 android:textColor="#696969"
-                                android:textSize="20dp" />
+                                android:textSize="20dp"
+                                android:autoText="false"
+                                android:elegantTextHeight="true"
+                                android:focusable="true"
+                                android:singleLine="true"
+                                android:allowUndo="true"
+                                android:contextClickable="false"
+                                android:clickable="true"
+                                android:editable="true"
+                                android:enabled="true"
+                                android:phoneNumber="true"
+                                android:autoLink="phone" />
 
                             <ImageView
                                 android:id="@+id/callButton"
@@ -101,7 +118,8 @@
                                 android:layout_height="25dp"
                                 android:src="@drawable/call"
                                 android:layout_centerVertical="true"
-                                android:layout_toStartOf="@+id/smsButton" />
+                                android:layout_toStartOf="@+id/smsButton"
+                                android:contentDescription="@string/call" />
 
                             <ImageView
                                 android:id="@+id/smsButton"
@@ -109,7 +127,8 @@
                                 android:layout_height="50dp"
                                 android:src="@drawable/sms"
                                 android:layout_alignParentBottom="true"
-                                android:layout_alignParentEnd="true" />
+                                android:layout_alignParentEnd="true"
+                                android:contentDescription="@string/sms" />
                         </RelativeLayout>
                     </LinearLayout>
 
@@ -120,7 +139,13 @@
                         android:layout_marginTop="10dp"
                         android:text="Address"
                         android:textColor="#50A7B3"
-                        android:textSize="20dp" />
+                        android:textSize="20dp"
+                        android:allowUndo="true"
+                        android:contextClickable="false"
+                        android:clickable="true"
+                        android:editable="true"
+                        android:focusable="true"
+                        android:enabled="true" />
 
                     <View
                         android:layout_width="match_parent"
@@ -134,7 +159,15 @@
                         android:layout_marginBottom="5dp"
                         android:layout_marginTop="10dp"
                         android:textColor="#696969"
-                        android:textSize="20dp" />
+                        android:textSize="20dp"
+                        android:allowUndo="true"
+                        android:contextClickable="false"
+                        android:clickable="true"
+                        android:editable="true"
+                        android:focusable="true"
+                        android:enabled="true"
+                        android:selectAllOnFocus="true"
+                        android:maxLines="3" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -175,8 +208,8 @@
                         android:layout_height="1dp"
                         android:background="#728C93" />
 
-                    <TextView
-                        android:id="@+id/geoCordsField"
+                    <Button
+                        android:id="@+id/geoCords"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"

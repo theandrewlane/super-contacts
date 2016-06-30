@@ -9,34 +9,22 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/addNewContactButton"
-        android:layout_marginBottom="23dp"
-        android:layout_marginEnd="24dp"
         android:onClick="onClick_newScan"
         android:src="@android:drawable/ic_menu_camera"
         android:layout_gravity="bottom|right"
-        android:layout_marginRight="23dp"
         android:layout_height="56dp"
         android:layout_width="58dp"
-        android:layout_x="214dp"
-        android:layout_y="447dp" />
+        android:layout_x="310dp"
+        android:layout_y="398dp" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/addNewContactNoScanButton"
         android:layout_width="58dp"
         android:layout_height="56dp"
         android:layout_gravity="bottom"
-        android:layout_marginBottom="23dp"
-        android:layout_marginEnd="24dp"
         android:onClick="onClick_newContact"
         android:src="@android:drawable/ic_input_add"
-        android:layout_x="284dp"
-        android:layout_y="447dp" />
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/poop"/>
-
-
+        android:layout_x="310dp"
+        android:layout_y="465dp" />
 
 </AbsoluteLayout>
