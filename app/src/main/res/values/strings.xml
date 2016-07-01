@@ -6,4 +6,12 @@
     <string name="call">call</string>
     <string name="sms">sms</string>
     <string name="enter_phone_number">Enter Phone number</string>
+    <string name="enter_a_contacts_name">Enter A Contacts Name...</string>
+    <string name="first_met">First Met</string>
+    <string name="enter_contact_s_birthday">Enter Contact\'s Birthday...</string>
+    <string name="birthday">Birthday</string>
+    <string name="enter_contact_s_address">Enter Contact\'s Address...</string>
+    <string name="address">Address</string>
+    <string name="phone">Phone</string>
+    <string name="contact_picture_placeholder">contact picture placeholder</string>
 </resources>

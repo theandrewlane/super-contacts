@@ -2,29 +2,30 @@
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:configChanges="orientation|screenSize|keyboardHidden"
+    android:orientation="vertical"
+    android:screenOrientation="portrait">
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="50dp"
         android:background="#2FC9EC"
-        android:gravity="center_vertical"
+        android:gravity="top"
         android:orientation="horizontal">
 
         <EditText
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#FFFFFF"
-            android:inputType="textCapWords"
-            android:hint="Enter Contact Name"
-            android:textSize="30dp"
             android:allowUndo="true"
-            android:contextClickable="false"
             android:clickable="true"
+            android:contextClickable="false"
             android:editable="true"
             android:focusable="true"
-            android:enabled="true" />
+            android:hint="@string/enter_a_contacts_name"
+            android:inputType="textCapWords"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp" />
 
     </LinearLayout>
 
@@ -44,9 +45,10 @@
 
                 <ImageView
                     android:id="@+id/image1"
-                    android:layout_width="250dp"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@mipmap/ic_launcher" />
+                    android:src="@mipmap/ic_launcher"
+                    android:contentDescription="@string/contact_picture_placeholder" />
 
             </LinearLayout>
 
@@ -68,9 +70,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
-                        android:text="Phone"
+                        android:text="@string/phone"
                         android:textColor="#50A7B3"
-                        android:textSize="20dp" />
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
                     <View
                         android:layout_width="match_parent"
@@ -83,7 +86,7 @@
                         android:orientation="horizontal">
 
                         <RelativeLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:layout_weight="0.60"
@@ -95,40 +98,42 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="5dp"
+                                android:allowUndo="true"
+                                android:autoLink="phone"
+                                android:autoText="false"
+                                android:clickable="true"
+                                android:contextClickable="false"
+                                android:digits="0123456789+"
+                                android:editable="true"
+                                android:elegantTextHeight="true"
+                                android:enabled="true"
+                                android:focusable="true"
                                 android:hint="@string/enter_phone_number"
                                 android:inputType="phone"
-                                android:digits="0123456789+"
-                                android:textColor="#696969"
-                                android:textSize="20dp"
-                                android:autoText="false"
-                                android:elegantTextHeight="true"
-                                android:focusable="true"
-                                android:singleLine="true"
-                                android:allowUndo="true"
-                                android:contextClickable="false"
-                                android:clickable="true"
-                                android:editable="true"
-                                android:enabled="true"
                                 android:phoneNumber="true"
-                                android:autoLink="phone" />
+                                android:singleLine="true"
+                                android:textColor="#696969"
+                                android:textSize="20sp" />
 
                             <ImageView
                                 android:id="@+id/callButton"
                                 android:layout_width="25dp"
                                 android:layout_height="25dp"
+                                android:contentDescription="@string/call"
                                 android:src="@drawable/call"
                                 android:layout_centerVertical="true"
-                                android:layout_toStartOf="@+id/smsButton"
-                                android:contentDescription="@string/call" />
+                                android:layout_toEndOf="@+id/phoneField"
+                                android:layout_marginStart="37dp" />
 
                             <ImageView
                                 android:id="@+id/smsButton"
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
+                                android:contentDescription="@string/sms"
                                 android:src="@drawable/sms"
-                                android:layout_alignParentBottom="true"
-                                android:layout_alignParentEnd="true"
-                                android:contentDescription="@string/sms" />
+                                android:layout_alignBottom="@+id/phoneField"
+                                android:layout_toEndOf="@+id/callButton"
+                                android:layout_alignTop="@+id/callButton" />
                         </RelativeLayout>
                     </LinearLayout>
 
@@ -137,15 +142,16 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
                         android:layout_marginTop="10dp"
-                        android:text="Address"
-                        android:textColor="#50A7B3"
-                        android:textSize="20dp"
+
                         android:allowUndo="true"
-                        android:contextClickable="false"
                         android:clickable="true"
-                        android:editable="true"
+                        android:contextClickable="false"
+                        android:enabled="true"
                         android:focusable="true"
-                        android:enabled="true" />
+                        android:text="@string/address"
+                        android:textColor="#50A7B3"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
                     <View
                         android:layout_width="match_parent"
@@ -158,25 +164,28 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
                         android:layout_marginTop="10dp"
-                        android:textColor="#696969"
-                        android:textSize="20dp"
                         android:allowUndo="true"
-                        android:contextClickable="false"
                         android:clickable="true"
+                        android:contextClickable="false"
                         android:editable="true"
-                        android:focusable="true"
                         android:enabled="true"
+                        android:focusable="true"
+                        android:hint="@string/enter_contact_s_address"
+                        android:maxLines="3"
                         android:selectAllOnFocus="true"
-                        android:maxLines="3" />
+                        android:textColor="#696969"
+                        android:textSize="20sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
+
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
                         android:layout_marginTop="10dp"
-                        android:text="Birthday"
+                        android:text="@string/birthday"
                         android:textColor="#50A7B3"
-                        android:textSize="20dp"/>
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
                     <View
                         android:layout_width="match_parent"
@@ -189,19 +198,20 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
                         android:layout_marginTop="10dp"
-                        android:textColor="#696969"
+                        android:hint="@string/enter_contact_s_birthday"
                         android:inputType="date"
-                        android:hint="Enter Contact Birthday"
-                        android:textSize="20dp" />
+                        android:textColor="#696969"
+                        android:textSize="20sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
                         android:layout_marginTop="10dp"
-                        android:text="Geo Cords"
+                        android:text="@string/first_met"
                         android:textColor="#50A7B3"
-                        android:textSize="20dp" />
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
                     <View
                         android:layout_width="match_parent"
@@ -215,7 +225,7 @@
                         android:layout_marginBottom="5dp"
                         android:layout_marginTop="10dp"
                         android:textColor="#696969"
-                        android:textSize="20dp" />
+                        android:textSize="20sp" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

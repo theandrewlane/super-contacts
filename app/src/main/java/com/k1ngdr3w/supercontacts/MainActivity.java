@@ -35,18 +35,19 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestPermissions();
-        setContentView(R.layout.activity_main);
-        newContactFromScanButton = findViewById(R.id.addNewContactButton);
-        newContactButton = findViewById(R.id.addNewContactNoScanButton);
-        hideMainActivityButtons(false);
-        contactListFragment = new ContactListFragment();
-        contactEditFragment = new ContactEditViewFragment();
-        findCurrentLocation();
-        activity = this;
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.add(R.id.MainLayout, contactListFragment);
-        transaction.commit();
+        if (savedInstanceState == null) {
+            requestPermissions();
+            setContentView(R.layout.activity_main);
+            newContactFromScanButton = findViewById(R.id.addNewContactButton);
+            newContactButton = findViewById(R.id.addNewContactNoScanButton);
+            hideMainActivityButtons(false);
+            contactListFragment = new ContactListFragment();
+            contactEditFragment = new ContactEditViewFragment();
+            activity = this;
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.add(R.id.MainLayout, contactListFragment);
+            transaction.commit();
+        }
     }
 
     @Override
@@ -78,19 +79,25 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+
         super.onSaveInstanceState(outState);
+        outState.putLong(DatabaseHelper.KEY_ROWID, rowID);
+
     }
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (hasPermission("android.permission.CAMERA")) {
+        if(hasPermission("android.permission.ACCESS_FINE_LOCATION")){
+            findCurrentLocation();
 
+        }
+        if (hasPermission("android.permission.CAMERA")) {
             IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
             if (result != null) {
                 if (result.getContents() == null) {
                     Log.d("MainActivity", "Cancelled scan");
-                    Toast.makeText(this, "Cancelled ID scan!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "You cancelled the scan!", Toast.LENGTH_LONG).show();
                 } else {
                     license = new DriversLicense(result.getContents());
                     String address = null;
@@ -120,8 +127,8 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
 
     @Override
     public void onAdd() {
-        if (hasPermission("android.permission.CAMERA") && hasPermission("android.permission.CAMERA")) {
-
+        if (hasPermission("android.permission.CAMERA") && hasPermission("android.permission.ACCESS_FINE_LOCATION")) {
+            findCurrentLocation();
             new IntentIntegrator(activity).setOrientationLocked(false).setCaptureActivity(CustomScannerActivity.class).initiateScan();
             contactListFragment = new ContactListFragment();
             FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
@@ -145,20 +152,14 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
     }
 
     // ******* Fragment Callbacks ******* \\
-    @Override
-    public void onLongSelect(long rowID) {
-        contactEditFragment.deleteContact(rowID);
-        contactListFragment.reloadContacts();
-
-    }
 
     @Override
     public void onSelect(long rowID) {
+        findCurrentLocation();
+
         contactEditFragment = new ContactEditViewFragment();
         hideMainActivityButtons(true);
         Bundle arguments = new Bundle();
-        Log.e("MAIN ------", "Clicked " + rowID);
-
         arguments.putLong(DatabaseHelper.KEY_ROWID, rowID);
         contactEditFragment.setArguments(arguments);
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
@@ -168,6 +169,8 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
     }
 
     public void onClick_newContact(View view) {
+        findCurrentLocation();
+        Log.e("oncreateMain", coords);
         contactEditFragment = new ContactEditViewFragment();
         Bundle arguments = new Bundle();
         arguments.putLong(DatabaseHelper.KEY_ROWID, rowID);
@@ -183,13 +186,18 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
 
     @Override
     public void onCompleteSave(long rowID) {
+        findCurrentLocation();
+
         getFragmentManager().popBackStack();
         getFragmentManager().popBackStack();
+        hideMainActivityButtons(false);
         contactListFragment.reloadContacts();
     }
 
     @Override
     public void onDeleteContact() {
+        findCurrentLocation();
+
         getFragmentManager().popBackStack();
         getFragmentManager().popBackStack();
         contactListFragment.reloadContacts();
@@ -198,6 +206,19 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
     // ******* Fragment Callbacks ******* \\
 
 
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+    }
+
     // ******* Location Permissions ******* \\
 
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -205,8 +226,6 @@ public class MainActivity extends AppCompatActivity implements ContactListFragme
             case 200: {
                 boolean locationPermissionAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                 boolean cameraPermissionAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
-
-                return;
             }
         }
     }

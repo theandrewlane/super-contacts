@@ -38,6 +38,7 @@ public class CustomScannerActivity extends Activity implements
 
         capture = new CaptureManager(this, barcodeScannerView);
         capture.initializeFromIntent(getIntent(), savedInstanceState);
+        switchFlashlightButton.setText("Flash On");
         capture.decode();
     }
 
@@ -80,7 +81,7 @@ public class CustomScannerActivity extends Activity implements
     }
 
     public void switchFlashlight(View view) {
-        if ("Turn on Flashy".equals(switchFlashlightButton.getText())) {
+        if ("Flash On".equals(switchFlashlightButton.getText())) {
             barcodeScannerView.setTorchOn();
         } else {
             barcodeScannerView.setTorchOff();
@@ -89,12 +90,12 @@ public class CustomScannerActivity extends Activity implements
 
     @Override
     public void onTorchOn() {
-        switchFlashlightButton.setText("Turn off Flashy");
+        switchFlashlightButton.setText("Flash Off");
     }
 
     @Override
     public void onTorchOff() {
-        switchFlashlightButton.setText("Turn on Flashy");
+        switchFlashlightButton.setText("Flash On");
     }
 
 }

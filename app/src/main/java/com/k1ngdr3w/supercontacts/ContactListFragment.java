@@ -39,15 +39,9 @@ public class ContactListFragment extends ListFragment {
     // callback methods implemented by MainActivity
     public interface ContactList_listener {
         void onAdd();
-
         void onCompleteSave(long rowID);
-
-        // called when user selects a course
         void onSelect(long rowID);
-
-        void onLongSelect(long rowID);
     }
-
 
     @Override
     public void onAttach(Activity activity) {
@@ -66,6 +60,8 @@ public class ContactListFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        setRetainInstance(true);
+        super.onCreate(savedInstanceState);
 
         rv = inflater.inflate(R.layout.fragment_contact_list, container, false);
         return super.onCreateView(inflater, container, savedInstanceState);
@@ -77,7 +73,6 @@ public class ContactListFragment extends ListFragment {
         setRetainInstance(true); // save fragment across config changes
         ma = (MainActivity) getActivity();
 
-        setEmptyText("Click the add button to insert a course!");
         contactListView = getListView();
         contactListView.setOnItemClickListener(viewContactListener);
         contactListView.setSelector(R.drawable.list_item_selector);
@@ -89,6 +84,8 @@ public class ContactListFragment extends ListFragment {
         cursorAdapter = new SimpleCursorAdapter(getActivity(),
                 R.layout.fragment_contact_list, null, firstName, resultView, 0);
         setListAdapter(cursorAdapter);
+        setEmptyText("You don't have any contacts yet!");
+
     }
 
     private final AdapterView.OnItemClickListener viewContactListener = new AdapterView.OnItemClickListener() {
@@ -138,8 +135,7 @@ public class ContactListFragment extends ListFragment {
         @Override
         protected Cursor doInBackground(String... params) {
             dbHelper.open();
-            Cursor cursor = dbHelper.getAllContacts();
-            return cursor;
+            return dbHelper.getAllContacts();
         }
 
         //TODO implement change cursor

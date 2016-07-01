@@ -97,7 +97,7 @@ public class Decoder {
         return Integer.parseInt(getHeaders().get("SubfileLength").toString());
     }
 
-    protected HashMap<String, String> decodeHeaders(String data) {
+    protected HashMap decodeHeaders(String data) {
         HashMap hm = new HashMap();
 
         // declare

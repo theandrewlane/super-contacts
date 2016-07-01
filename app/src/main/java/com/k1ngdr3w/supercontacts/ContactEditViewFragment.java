@@ -53,6 +53,8 @@ public class ContactEditViewFragment extends Fragment {
     private int i_address, i_bday, i_phone, i_firstName, i_lastName, i_geoLoc;
     Activity act;
     Button geoCords;
+    String addressString;
+
 
     String locationCoords;
     GoogleMap map;
@@ -97,7 +99,6 @@ public class ContactEditViewFragment extends Fragment {
     }
 
     public void onClick_showMap() {
-
 
         Dialog dialog = new Dialog(act);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -148,6 +149,7 @@ public class ContactEditViewFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         setHasOptionsMenu(true);
     }
 
@@ -165,11 +167,6 @@ public class ContactEditViewFragment extends Fragment {
         deleteMenuButton.setVisible(false);
         shareMenuButton.setVisible(false);
         saveMenuButton.setVisible(false);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
 
@@ -203,8 +200,7 @@ public class ContactEditViewFragment extends Fragment {
             rowID = savedData.getLong(DatabaseHelper.KEY_ROWID);
             new GetContactFromDB().execute(rowID);
         }
-        if (savedData.toString().contains(DatabaseHelper.KEY_GEOLOCATION))
-        {
+        if (savedData.toString().contains(DatabaseHelper.KEY_GEOLOCATION)) {
             state = "create";
             locationCoords = savedData.getString(DatabaseHelper.KEY_GEOLOCATION);
             geoCords.setEnabled(false);
@@ -259,16 +255,25 @@ public class ContactEditViewFragment extends Fragment {
 
     public void updateAdd() {
         DatabaseHelper dbHelper = new DatabaseHelper(act);
-        if (state == "create") {
+        if (state.equals("create")) {
             parseName(name.getText().toString());
 
             rowID = dbHelper.insertContact(lastName, firstName, address.getText().toString(), birthday.getText().toString(), phone.getText().toString(), locationCoords);
         }
 
-        if (state == "edit") {
+        if (state.equals("edit")) {
             rowID = getArguments().getLong(DatabaseHelper.KEY_ROWID);
             parseName(name.getText().toString());
             Log.e("CEVF ------", "About to save " + " --- " + firstName + "  ---- " + lastName + " -----" + phone.getText());
+            if (lastName.length() < 1)
+                lastName = "";
+            if (firstName.length() < 1)
+                firstName = "";
+            if (address.getText().toString().length() < 1) {
+                addressString = "";
+            } else {
+                addressString = address.getText().toString();
+            }
             dbHelper.updateContact(rowID, lastName, firstName, address.getText().toString(), birthday.getText().toString(), phone.getText().toString(), geoCords.getText().toString());
         }
     }
@@ -287,8 +292,7 @@ public class ContactEditViewFragment extends Fragment {
         @Override
         protected Cursor doInBackground(Long... params) {
             dbHelper.open();
-            Cursor cursor = dbHelper.getOneContact(params[0]);
-            return cursor;
+            return dbHelper.getOneContact(params[0]);
         }
 
         // use cursor returned from above
@@ -302,10 +306,16 @@ public class ContactEditViewFragment extends Fragment {
                 i_bday = cursor.getColumnIndex(DatabaseHelper.KEY_BIRTHDAY);
                 i_geoLoc = cursor.getColumnIndex(DatabaseHelper.KEY_GEOLOCATION);
                 i_phone = cursor.getColumnIndex(DatabaseHelper.KEY_PHONENUMBER);
-                String tempName = cursor.getString(i_firstName) + " " + cursor.getString(i_lastName);
-
+                lastName = "";
+                String tempName = "";
+                if (cursor.getString(i_firstName) != null && cursor.getString(i_lastName) != null) {
+                    tempName = cursor.getString(i_firstName) + " " + cursor.getString(i_lastName);
+                    lastName = cursor.getString(i_lastName);
+                }
                 firstName = cursor.getString(i_firstName);
-                lastName = cursor.getString(i_lastName);
+                if (tempName.length() < 1)
+                    tempName = firstName;
+
                 name.setText(tempName);
                 address.setText(cursor.getString(i_address));
                 birthday.setText(cursor.getString(i_bday));
@@ -314,12 +324,17 @@ public class ContactEditViewFragment extends Fragment {
                 geoCords.setText(locationCoords);
                 cursor.close();
                 dbHelper.close();
-                String[] locationArray = locationCoords.split(",");
-                lat = Double.parseDouble(locationArray[0]);
-                lon = Double.parseDouble(locationArray[1]);
+                if (locationCoords != null) {
+                    String[] locationArray = locationCoords.split(",");
+                    if (locationArray[0] != "" && locationArray[1] != "") {
+                        lat = Double.parseDouble(locationArray[0]);
+                        lon = Double.parseDouble(locationArray[1]);
+                    }
+                }
             }
         }
     }
+
 
     //Generate A Shareable String
     public String generateSharableString() {
@@ -330,8 +345,7 @@ public class ContactEditViewFragment extends Fragment {
         if (validateInput()) {
             updateAddContact();
             new GetContactFromDB().execute(rowID);
-            String dataString = "LastName = " + lastName + ", FirstName = " + firstName + ", FullAddress = " + address.getText().toString() + ", DOB = " + birthday.getText().toString() + ", Phone = " + phone.getText().toString() + ", GeoCords = " + geoCords.getText().toString().trim();
-            return dataString;
+            return "LastName = " + lastName + ", FirstName = " + firstName + ", FullAddress = " + address.getText().toString() + ", DOB = " + birthday.getText().toString() + ", Phone = " + phone.getText().toString() + ", GeoCords = " + geoCords.getText().toString().trim();
         }
         return null;
     }

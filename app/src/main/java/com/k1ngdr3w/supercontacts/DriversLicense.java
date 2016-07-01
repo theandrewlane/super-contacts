@@ -12,7 +12,6 @@ import java.util.Map;
 
 public class DriversLicense {
 
-    private String dataString;
     Map<String, String> map = new HashMap<String, String>();
 
 
@@ -20,7 +19,7 @@ public class DriversLicense {
     private Decoder decoder;
 
     public DriversLicense(String barCode) {
-        dataString = barCode;
+        String dataString = barCode;
         try {
             decoder = new Decoder(barCode);
             dataHash = decoder.getSubFile();
